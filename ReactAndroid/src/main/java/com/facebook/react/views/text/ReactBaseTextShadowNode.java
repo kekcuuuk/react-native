@@ -14,13 +14,13 @@ import android.os.Build;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.view.Gravity;
 import androidx.annotation.Nullable;
 import com.facebook.infer.annotation.Assertions;
 import com.facebook.react.bridge.JSApplicationIllegalArgumentException;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.config.ReactFeatureFlags;
 import com.facebook.react.uimanager.IllegalViewOperationException;
 import com.facebook.react.uimanager.LayoutShadowNode;
 import com.facebook.react.uimanager.NativeViewHierarchyOptimizer;
@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * {@link ReactShadowNode} abstract class for spannable text nodes.
@@ -142,16 +141,11 @@ public abstract class ReactBaseTextShadowNode extends LayoutShadowNode {
         float width;
         float height;
         if (widthValue.unit != YogaUnit.POINT || heightValue.unit != YogaUnit.POINT) {
-          if (ReactFeatureFlags.supportInlineViewsWithDynamicSize) {
-            // If the measurement of the child isn't calculated, we calculate the layout for the
-            // view using Yoga
-            child.calculateLayout();
-            width = child.getLayoutWidth();
-            height = child.getLayoutHeight();
-          } else {
-            throw new IllegalViewOperationException(
-                "Views nested within a <Text> must have a width and height");
-          }
+          // If the measurement of the child isn't calculated, we calculate the layout for the
+          // view using Yoga
+          child.calculateLayout();
+          width = child.getLayoutWidth();
+          height = child.getLayoutHeight();
         } else {
           width = widthValue.value;
           height = heightValue.value;
@@ -475,7 +469,7 @@ public abstract class ReactBaseTextShadowNode extends LayoutShadowNode {
     markUpdated();
   }
 
-  @ReactProp(name = ViewProps.COLOR)
+  @ReactProp(name = ViewProps.COLOR, customType = "Color")
   public void setColor(@Nullable Integer color) {
     mIsColorSet = (color != null);
     if (mIsColorSet) {
@@ -518,7 +512,7 @@ public abstract class ReactBaseTextShadowNode extends LayoutShadowNode {
   public void setFontVariant(@Nullable ReadableArray fontVariantArray) {
     String fontFeatureSettings = ReactTypefaceUtils.parseFontVariant(fontVariantArray);
 
-    if (!Objects.equals(fontFeatureSettings, mFontFeatureSettings)) {
+    if (!TextUtils.equals(fontFeatureSettings, mFontFeatureSettings)) {
       mFontFeatureSettings = fontFeatureSettings;
       markUpdated();
     }

@@ -19,19 +19,16 @@ public class HermesExecutor extends JavaScriptExecutor {
     // libhermes must be loaded explicitly to invoke its JNI_OnLoad.
     SoLoader.loadLibrary("hermes");
     try {
-      SoLoader.loadLibrary("hermes-executor-release");
-      mode_ = "Release";
-    } catch (UnsatisfiedLinkError e) {
       SoLoader.loadLibrary("hermes-executor-debug");
       mode_ = "Debug";
+    } catch (UnsatisfiedLinkError e) {
+      SoLoader.loadLibrary("hermes-executor-release");
+      mode_ = "Release";
     }
   }
 
   HermesExecutor(@Nullable RuntimeConfig config) {
-    super(
-        config == null
-            ? initHybridDefaultConfig()
-            : initHybrid(config.heapSizeMB, config.es6Symbol, config.bytecodeWarmupPercent));
+    super(config == null ? initHybridDefaultConfig() : initHybrid(config.heapSizeMB));
   }
 
   @Override
@@ -50,6 +47,5 @@ public class HermesExecutor extends JavaScriptExecutor {
 
   private static native HybridData initHybridDefaultConfig();
 
-  private static native HybridData initHybrid(
-      long heapSizeMB, boolean es6Symbol, int bytecodeWarmupPercent);
+  private static native HybridData initHybrid(long heapSizeMB);
 }
